@@ -20,6 +20,7 @@ const parse = (csv) => {
 
 const getRatings = async () => {
   const expire = 3600 * 24 * 1000; // cache for 1 day
+
   let items = await chrome.storage.local.get(["ratings", "cacheTime"]);
   if (
     items.ratings &&
@@ -88,13 +89,11 @@ const debounce = (func, timeout) => {
   };
 };
 
-const callback = (mutationList, observer) => {
-  for (_ of mutationList) {
+const observer = new MutationObserver((mutations) => {
+  for (_ of mutations) {
     debounce(update, 300)();
   }
-};
-
-const observer = new MutationObserver(callback);
+});
 
 if (
   document.location.href.match(/^https?:\/\/(www.)?leetcode.com\/problemset\//)
@@ -102,8 +101,6 @@ if (
   // listen for style change for the very first load
   observer.observe(document.querySelector(".pointer-events-none.opacity-50"), {
     attributes: true,
-    childList: false,
-    subtree: false,
   });
 
   // listen for navigation, as the style won't be updated for the second time
@@ -119,8 +116,6 @@ if (
 ) {
   // I can't find a clean selection, so I just use body...
   observer.observe(document.querySelector("body"), {
-    attributes: false,
     childList: true,
-    subtree: false,
   });
 }

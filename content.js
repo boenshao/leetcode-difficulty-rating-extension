@@ -78,6 +78,15 @@ const update = () => {
       'div[diff="easy"],div[diff="medium"],div[diff="hard"]'
     );
     replace(ratings, title, difficulty);
+
+    // leetcode.com/tag/*/
+    document.querySelectorAll("tbody.reactable-data tr").forEach((ele) => {
+      title = ele.querySelector('td:nth-child(2)[label="#"]');
+      difficulty = ele.querySelector(
+        'td:nth-child(5)[label="Difficulty"] span'
+      );
+      replace(ratings, title, difficulty);
+    });
   });
 };
 
@@ -116,6 +125,12 @@ if (
 ) {
   // I can't find a clean selection, so I just use body...
   observer.observe(document.querySelector("body"), {
+    childList: true,
+  });
+}
+
+if (document.location.href.match(/^https?:\/\/(www.)?leetcode.com\/tag\//)) {
+  observer.observe(document.querySelector("#app"), {
     childList: true,
   });
 }

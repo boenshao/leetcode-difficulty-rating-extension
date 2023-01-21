@@ -80,10 +80,10 @@ const update = () => {
   });
 };
 
+let timer;
 const debounce = (func, timeout) => {
-  let timer;
   return (...args) => {
-    clearTimeout(timeout);
+    clearTimeout(timer);
     timer = setTimeout(() => func.apply(this, args), timeout);
   };
 };

@@ -1,0 +1,13 @@
+{
+  "manifest_version": 3,
+  "name": "Leetcode Difficulty Rating",
+  "version": "1.0",
+  "description": "Replace Leetcode problem's difficulty with a more precise rating.",
+  "permissions": ["storage"],
+  "content_scripts": [
+    {
+      "js": ["content.js"],
+      "matches": ["*://leetcode.com/*"]
+    }
+  ]
+}

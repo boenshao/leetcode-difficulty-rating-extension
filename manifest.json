@@ -19,7 +19,7 @@
     }
   ],
   "background": {
-    "service_worker": "src/background.js"
+    "scripts": ["src/background.js"]
   },
   "action": {
     "default_popup": "src/popup.html"

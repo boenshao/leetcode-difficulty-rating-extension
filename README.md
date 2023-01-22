@@ -4,7 +4,7 @@ Replace Leetcode problem's difficulty with a more precise contest rating.
 
 The green/yellow/red text color is preserved, so you still can tell the official difficultly.
 
-If no rating is avaliable for the problem, `N/A` will be shown.
+By default, if no rating is avaliable for the problem, `N/A` will be shown. You can change the setting in extension popup.
 
 ## Preview
 

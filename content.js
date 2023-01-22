@@ -41,52 +41,52 @@ const getRatings = async () => {
   return ratings;
 };
 
-const replace = (ratings, title, difficulty) => {
+const replace = (ratings, title, difficulty, showNA) => {
   if (!title || !difficulty) return;
 
   let id = title.innerHTML.split(".")[0];
+
+  if (!ratings[id]?.Rating && !showNA) return;
+
   difficulty.innerHTML = difficulty.innerHTML.replace(
     /(Hard|Medium|Easy|\d{3,4}|N\/A)/,
-    ratings[id]?.hasOwnProperty("Rating")
+    ratings[id]?.Rating
       ? ratings[id].Rating.split(".")[0] // truncate to integer
       : "N/A" // no data available
   );
 };
 
-const update = () => {
-  getRatings().then((ratings) => {
-    let title;
-    let difficulty;
+const update = async () => {
+  let ratings = await getRatings();
+  let showNA = (await chrome.storage.local.get("showNA")).showNA;
 
-    // leetcode.com/problemset/*
-    document.querySelectorAll('[role="row"]').forEach((ele) => {
-      title = ele.querySelector('[role="cell"]:nth-child(2) a');
-      difficulty = ele.querySelector('[role="cell"]:nth-child(5) span');
-      replace(ratings, title, difficulty);
-    });
+  let title;
+  let difficulty;
 
-    // new leetcode.com/problems/*/
-    title = document.querySelector("div span.text-lg.text-label-1.font-medium");
-    difficulty = document.querySelector(
-      "div div.text-xs.font-medium.capitalize"
-    );
-    replace(ratings, title, difficulty);
+  // leetcode.com/problemset/*
+  document.querySelectorAll('[role="row"]').forEach((ele) => {
+    title = ele.querySelector('[role="cell"]:nth-child(2) a');
+    difficulty = ele.querySelector('[role="cell"]:nth-child(5) span');
+    replace(ratings, title, difficulty, showNA);
+  });
 
-    // old leetcode.com/problems/*/
-    title = document.querySelector('div[data-cy="question-title"]');
-    difficulty = document.querySelector(
-      'div[diff="easy"],div[diff="medium"],div[diff="hard"]'
-    );
-    replace(ratings, title, difficulty);
+  // new leetcode.com/problems/*/
+  title = document.querySelector("div span.text-lg.text-label-1.font-medium");
+  difficulty = document.querySelector("div div.text-xs.font-medium.capitalize");
+  replace(ratings, title, difficulty, showNA);
 
-    // leetcode.com/tag/*/
-    document.querySelectorAll("tbody.reactable-data tr").forEach((ele) => {
-      title = ele.querySelector('td:nth-child(2)[label="#"]');
-      difficulty = ele.querySelector(
-        'td:nth-child(5)[label="Difficulty"] span'
-      );
-      replace(ratings, title, difficulty);
-    });
+  // old leetcode.com/problems/*/
+  title = document.querySelector('div[data-cy="question-title"]');
+  difficulty = document.querySelector(
+    'div[diff="easy"],div[diff="medium"],div[diff="hard"]'
+  );
+  replace(ratings, title, difficulty, showNA);
+
+  // leetcode.com/tag/*/
+  document.querySelectorAll("tbody.reactable-data tr").forEach((ele) => {
+    title = ele.querySelector('td:nth-child(2)[label="#"]');
+    difficulty = ele.querySelector('td:nth-child(5)[label="Difficulty"] span');
+    replace(ratings, title, difficulty, showNA);
   });
 };
 

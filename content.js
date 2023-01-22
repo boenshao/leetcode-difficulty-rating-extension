@@ -44,12 +44,12 @@ const getRatings = async () => {
 const replace = (ratings, title, difficulty, showNA) => {
   if (!title || !difficulty) return;
 
-  let id = title.innerHTML.split(".")[0];
+  let id = title.textContent.split(".")[0];
 
   if (!ratings[id]?.Rating && !showNA) return;
 
-  difficulty.innerHTML = difficulty.innerHTML.replace(
-    /(Hard|Medium|Easy|\d{3,4}|N\/A)/,
+  difficulty.textContent = difficulty.textContent.replace(
+    /([Hh]ard|[Mm]edium|[Ee]asy|\d{3,4}|N\/A)/,
     ratings[id]?.Rating
       ? ratings[id].Rating.split(".")[0] // truncate to integer
       : "N/A" // no data available

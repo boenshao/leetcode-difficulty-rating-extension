@@ -99,9 +99,7 @@ const debounce = (func, timeout) => {
 };
 
 const observer = new MutationObserver((mutations) => {
-  for (_ of mutations) {
-    debounce(update, 300)();
-  }
+  mutations.forEach(debounce(update, 500));
 });
 
 if (

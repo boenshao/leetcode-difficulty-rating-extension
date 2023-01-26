@@ -4,11 +4,11 @@
 
 ## Introduction
 
-Replace Leetcode problem's difficulty with a more precise contest rating.
+Replace Leetcode problem's difficulty with a more precise contest rating sourced from [here](https://github.com/zerotrac/leetcode_problem_rating).
 
 The green/yellow/red text color is preserved, so you can still tell the official difficulty.
 
-By default, `N/A` will be shown if no rating is available for the problem. You can change the setting in the extension popup.
+Problems in 1st-62nd weekly contests and problems that did not come from contests don’t have rating data and `N/A` is shown by default. You can change the setting in the extension popup.
 
 ## Preview
 

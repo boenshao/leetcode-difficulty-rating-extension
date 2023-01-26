@@ -6,11 +6,11 @@ const parse = (csv) => {
   */
 
   let lines = csv.split("\n"); // split rows by newline
-  let headers = lines[0].split(/\s+/); // first row is headers, split cols by spaces
+  let headers = lines[0].split(/\t+/); // first row is headers, split cols by tab
 
   let json = {};
   for (let i = 1; i < lines.length; i++) {
-    let row = lines[i].split(/\s+/); // data, split cols by spaces
+    let row = lines[i].split(/\t+/); // data, split cols by tab
     // ID as key
     json[row[1]] = Object.fromEntries(headers.map((k, i) => [k, row[i]]));
   }

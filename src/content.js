@@ -125,6 +125,14 @@ if (
   observer.observe(document.querySelector("body"), {
     childList: true,
   });
+
+  // listen for style change of 'Description' tab
+  let tab = document.querySelector(
+    "#qd-content > div > div > div > div > div > div > div > a > div:nth-child(1)"
+  );
+  if (tab) {
+    observer.observe(tab, {attributes: true});
+  }
 }
 
 if (document.location.href.match(/^https?:\/\/(www.)?leetcode.com\/tag\//)) {

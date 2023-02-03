@@ -71,8 +71,10 @@ const update = async () => {
   });
 
   // new leetcode.com/problems/*/
-  title = document.querySelector("div span.text-lg.text-label-1.font-medium");
-  difficulty = document.querySelector("div div.text-xs.font-medium.capitalize");
+  title = document.querySelector("div > span.text-lg.text-label-1.font-medium");
+  difficulty = document.querySelector(
+    "div > div.text-xs.font-medium.capitalize"
+  );
   replace(ratings, title, difficulty, showNA);
 
   // old leetcode.com/problems/*/
@@ -85,7 +87,9 @@ const update = async () => {
   // leetcode.com/tag/*/
   document.querySelectorAll("tbody.reactable-data tr").forEach((ele) => {
     title = ele.querySelector('td:nth-child(2)[label="#"]');
-    difficulty = ele.querySelector('td:nth-child(5)[label="Difficulty"] span');
+    difficulty = ele.querySelector(
+      'td:nth-child(5)[label="Difficulty"] > span'
+    );
     replace(ratings, title, difficulty, showNA);
   });
 };
@@ -111,7 +115,7 @@ if (
   });
 
   // listen for navigation, as the style won't be updated for the second time
-  observer.observe(document.querySelector('div [role="navigation"]'), {
+  observer.observe(document.querySelector('div > [role="navigation"]'), {
     attributes: true,
     characterData: true,
     subtree: true,

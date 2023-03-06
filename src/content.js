@@ -41,13 +41,6 @@ const getRatings = async () => {
   return ratings;
 };
 
-/**
- * @description check the website url is leetcode.com (which means in US site) or not
- * @returns {boolean}
- */
-const isLeetCodeUS = () =>
-  document.location.href.match(/^https?:\/\/(www.)?leetcode.com\/problemset\//);
-
 const replace = (ratings, title, difficulty, showNA) => {
   if (!title || !difficulty) return;
 
@@ -55,18 +48,12 @@ const replace = (ratings, title, difficulty, showNA) => {
 
   if (!ratings[id]?.Rating && !showNA) return;
 
-  const RATING = ratings[id]?.Rating
-    ? ratings[id].Rating.split(".")[0] // truncate to integer
-    : "N/A"; // no data available
-
-  if (isLeetCodeUS()) {
-    difficulty.textContent = difficulty.textContent.replace(
-      /([Hh]ard|[Mm]edium|[Ee]asy|\d{3,4}|N\/A)/,
-      RATING
-    );
-  } else {
-    difficulty.textContent = RATING;
-  }
+  difficulty.textContent = difficulty.textContent.replace(
+    /([Hh]ard|[Mm]edium|[Ee]asy|简单|中等|困难|\d{3,4}|N\/A)/,
+    ratings[id]?.Rating
+      ? ratings[id].Rating.split(".")[0] // truncate to integer
+      : "N/A" // no data available
+  );
 };
 
 const update = async () => {

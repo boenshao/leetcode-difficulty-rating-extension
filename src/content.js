@@ -45,7 +45,8 @@ const getRatings = async () => {
  * @description check the website url is leetcode.com (which means in US site) or not
  * @returns {boolean}
  */
-const isLeetCodeUS = () => document.location.href.match(/^https?:\/\/(www.)?leetcode.com\/problemset\//);
+const isLeetCodeUS = () =>
+  document.location.href.match(/^https?:\/\/(www.)?leetcode.com\/problemset\//);
 
 const replace = (ratings, title, difficulty, showNA) => {
   if (!title || !difficulty) return;
@@ -100,7 +101,7 @@ const update = async () => {
   title = document.querySelector('h4[data-cypress="QuestionTitle"]');
   difficulty = document.querySelector(
     'span[data-degree="easy"],span[data-degree="medium"],span[data-degree="hard"]'
-  )
+  );
   replace(ratings, title, difficulty, showNA);
 
   // leetcode.com/tag/*/
@@ -114,10 +115,8 @@ const update = async () => {
 
   // leetcode.cn/tag/*/
   document.querySelectorAll("tbody.ant-table-tbody tr").forEach((ele) => {
-    title = ele.querySelector('td:nth-child(2)');
-    difficulty = ele.querySelector(
-      'td:nth-child(4) > span'
-    );
+    title = ele.querySelector("td:nth-child(2)");
+    difficulty = ele.querySelector("td:nth-child(4) > span");
     replace(ratings, title, difficulty, showNA);
   });
 };
@@ -131,12 +130,10 @@ const debounce = (func, timeout) => {
 };
 
 const observer = new MutationObserver((mutations) => {
-    mutations.forEach(debounce(update, 300));
+  mutations.forEach(debounce(update, 300));
 });
 
-if (
-  document.location.href.match(/^https?:\/\/(www.)?leetcode.(com|cn)/)
-) {
+if (document.location.href.match(/^https?:\/\/(www.)?leetcode.(com|cn)/)) {
   // listen the whole page change, I think this listener is enough and others which from line 140 to 178 can be deprecated
   observer.observe(document, {
     subtree: true,
@@ -145,7 +142,9 @@ if (
 }
 
 if (
-  document.location.href.match(/^https?:\/\/(www.)?leetcode.(com|cn)\/problemset\//)
+  document.location.href.match(
+    /^https?:\/\/(www.)?leetcode.(com|cn)\/problemset\//
+  )
 ) {
   // listen for style change for the very first load
   observer.observe(document.querySelector(".pointer-events-none.opacity-50"), {
@@ -161,7 +160,9 @@ if (
 }
 
 if (
-  document.location.href.match(/^https?:\/\/(www.)?leetcode.(com|cn)\/problems\//)
+  document.location.href.match(
+    /^https?:\/\/(www.)?leetcode.(com|cn)\/problems\//
+  )
 ) {
   // I can't find a clean selection, so I just use body...
   observer.observe(document.querySelector("body"), {
@@ -177,7 +178,9 @@ if (
   }
 }
 
-if (document.location.href.match(/^https?:\/\/(www.)?leetcode.(com|cn)\/tag\//)) {
+if (
+  document.location.href.match(/^https?:\/\/(www.)?leetcode.(com|cn)\/tag\//)
+) {
   observer.observe(document.querySelector("#app"), {
     childList: true,
   });

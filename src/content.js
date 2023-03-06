@@ -104,6 +104,15 @@ const update = async () => {
     );
     replace(ratings, title, difficulty, showNA);
   });
+
+  // leetcode.cn/tag/*/
+  document.querySelectorAll("tbody.ant-table-tbody tr").forEach((ele) => {
+    title = ele.querySelector('td:nth-child(2)');
+    difficulty = ele.querySelector(
+      'td:nth-child(4) > span'
+    );
+    replace(ratings, title, difficulty, showNA);
+  });
 };
 
 let timer;
@@ -115,8 +124,18 @@ const debounce = (func, timeout) => {
 };
 
 const observer = new MutationObserver((mutations) => {
-  mutations.forEach(debounce(update, 300));
+    mutations.forEach(debounce(update, 300));
 });
+
+if (
+  document.location.href.match(/^https?:\/\/(www.)?leetcode.(com|cn)/)
+) {
+  // listen the whole page change, I think this listener is enough and others which from line 140 to 178 can be deprecated
+  observer.observe(document, {
+    subtree: true,
+    childList: true,
+  });
+}
 
 if (
   document.location.href.match(/^https?:\/\/(www.)?leetcode.(com|cn)\/problemset\//)

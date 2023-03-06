@@ -41,19 +41,31 @@ const getRatings = async () => {
   return ratings;
 };
 
+/**
+ * @description check the website url is leetcode.com (which means in US site) or not
+ * @returns {boolean}
+ */
+const isLeetCodeUS = () => document.location.href.match(/^https?:\/\/(www.)?leetcode.com\/problemset\//);
+
 const replace = (ratings, title, difficulty, showNA) => {
   if (!title || !difficulty) return;
 
-  let id = title.textContent.split(".")[0];
+  const id = title.textContent.split(".")[0];
 
   if (!ratings[id]?.Rating && !showNA) return;
 
-  difficulty.textContent = difficulty.textContent.replace(
-    /([Hh]ard|[Mm]edium|[Ee]asy|\d{3,4}|N\/A)/,
-    ratings[id]?.Rating
-      ? ratings[id].Rating.split(".")[0] // truncate to integer
-      : "N/A" // no data available
-  );
+  const RATING = ratings[id]?.Rating
+    ? ratings[id].Rating.split(".")[0] // truncate to integer
+    : "N/A"; // no data available
+
+  if (isLeetCodeUS()) {
+    difficulty.textContent = difficulty.textContent.replace(
+      /([Hh]ard|[Mm]edium|[Ee]asy|\d{3,4}|N\/A)/,
+      RATING
+    );
+  } else {
+    difficulty.textContent = RATING;
+  }
 };
 
 const update = async () => {
@@ -107,7 +119,7 @@ const observer = new MutationObserver((mutations) => {
 });
 
 if (
-  document.location.href.match(/^https?:\/\/(www.)?leetcode.com\/problemset\//)
+  document.location.href.match(/^https?:\/\/(www.)?leetcode.(com|cn)\/problemset\//)
 ) {
   // listen for style change for the very first load
   observer.observe(document.querySelector(".pointer-events-none.opacity-50"), {
@@ -123,14 +135,14 @@ if (
 }
 
 if (
-  document.location.href.match(/^https?:\/\/(www.)?leetcode.com\/problems\//)
+  document.location.href.match(/^https?:\/\/(www.)?leetcode.(com|cn)\/problems\//)
 ) {
   // I can't find a clean selection, so I just use body...
   observer.observe(document.querySelector("body"), {
     childList: true,
   });
 
-  // listen for style change of 'Description' tab
+  // listen for style change of 'Description' tab to hanlde the url chagne
   let tab = document.querySelector(
     "#qd-content > div > div > div > div > div > div > div > a > div:nth-child(1)"
   );
@@ -139,7 +151,7 @@ if (
   }
 }
 
-if (document.location.href.match(/^https?:\/\/(www.)?leetcode.com\/tag\//)) {
+if (document.location.href.match(/^https?:\/\/(www.)?leetcode.(com|cn)\/tag\//)) {
   observer.observe(document.querySelector("#app"), {
     childList: true,
   });

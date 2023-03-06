@@ -120,8 +120,10 @@ const observer = new MutationObserver((mutations) => {
   mutations.forEach(debounce(update, 300));
 });
 
-if (document.location.href.match(/^https?:\/\/(www.)?leetcode.(com|cn)/)) {
-  // listen the whole page change, I think this listener is enough and others which from line 140 to 178 can be deprecated
+if (document.location.href.match(/^https?:\/\/(www.)?leetcode.cn\//)) {
+  // listen the whole page change for CN site
+  // this is not optimal, but fast enough
+  // TODO: optimize for leetcode.cn or also listen to whole page on leetcode.com
   observer.observe(document, {
     subtree: true,
     childList: true,
@@ -129,9 +131,7 @@ if (document.location.href.match(/^https?:\/\/(www.)?leetcode.(com|cn)/)) {
 }
 
 if (
-  document.location.href.match(
-    /^https?:\/\/(www.)?leetcode.(com|cn)\/problemset\//
-  )
+  document.location.href.match(/^https?:\/\/(www.)?leetcode.com\/problemset\//)
 ) {
   // listen for style change for the very first load
   observer.observe(document.querySelector(".pointer-events-none.opacity-50"), {
@@ -147,9 +147,7 @@ if (
 }
 
 if (
-  document.location.href.match(
-    /^https?:\/\/(www.)?leetcode.(com|cn)\/problems\//
-  )
+  document.location.href.match(/^https?:\/\/(www.)?leetcode.com\/problems\//)
 ) {
   // I can't find a clean selection, so I just use body...
   observer.observe(document.querySelector("body"), {
@@ -165,9 +163,7 @@ if (
   }
 }
 
-if (
-  document.location.href.match(/^https?:\/\/(www.)?leetcode.(com|cn)\/tag\//)
-) {
+if (document.location.href.match(/^https?:\/\/(www.)?leetcode.com\/tag\//)) {
   observer.observe(document.querySelector("#app"), {
     childList: true,
   });

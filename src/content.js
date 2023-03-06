@@ -41,19 +41,31 @@ const getRatings = async () => {
   return ratings;
 };
 
+/**
+ * @description check the website url is leetcode.com (which means in US site) or not
+ * @returns {boolean}
+ */
+const isLeetCodeUS = () => document.location.href.match(/^https?:\/\/(www.)?leetcode.com\/problemset\//);
+
 const replace = (ratings, title, difficulty, showNA) => {
   if (!title || !difficulty) return;
 
-  let id = title.textContent.split(".")[0];
+  const id = title.textContent.split(".")[0];
 
   if (!ratings[id]?.Rating && !showNA) return;
 
-  difficulty.textContent = difficulty.textContent.replace(
-    /([Hh]ard|[Mm]edium|[Ee]asy|\d{3,4}|N\/A)/,
-    ratings[id]?.Rating
-      ? ratings[id].Rating.split(".")[0] // truncate to integer
-      : "N/A" // no data available
-  );
+  const RATING = ratings[id]?.Rating
+    ? ratings[id].Rating.split(".")[0] // truncate to integer
+    : "N/A"; // no data available
+
+  if (isLeetCodeUS()) {
+    difficulty.textContent = difficulty.textContent.replace(
+      /([Hh]ard|[Mm]edium|[Ee]asy|\d{3,4}|N\/A)/,
+      RATING
+    );
+  } else {
+    difficulty.textContent = RATING;
+  }
 };
 
 const update = async () => {
@@ -84,11 +96,27 @@ const update = async () => {
   );
   replace(ratings, title, difficulty, showNA);
 
+  // leetcode.cn/problems/*/
+  title = document.querySelector('h4[data-cypress="QuestionTitle"]');
+  difficulty = document.querySelector(
+    'span[data-degree="easy"],span[data-degree="medium"],span[data-degree="hard"]'
+  )
+  replace(ratings, title, difficulty, showNA);
+
   // leetcode.com/tag/*/
   document.querySelectorAll("tbody.reactable-data tr").forEach((ele) => {
     title = ele.querySelector('td:nth-child(2)[label="#"]');
     difficulty = ele.querySelector(
       'td:nth-child(5)[label="Difficulty"] > span'
+    );
+    replace(ratings, title, difficulty, showNA);
+  });
+
+  // leetcode.cn/tag/*/
+  document.querySelectorAll("tbody.ant-table-tbody tr").forEach((ele) => {
+    title = ele.querySelector('td:nth-child(2)');
+    difficulty = ele.querySelector(
+      'td:nth-child(4) > span'
     );
     replace(ratings, title, difficulty, showNA);
   });
@@ -103,11 +131,21 @@ const debounce = (func, timeout) => {
 };
 
 const observer = new MutationObserver((mutations) => {
-  mutations.forEach(debounce(update, 300));
+    mutations.forEach(debounce(update, 300));
 });
 
 if (
-  document.location.href.match(/^https?:\/\/(www.)?leetcode.com\/problemset\//)
+  document.location.href.match(/^https?:\/\/(www.)?leetcode.(com|cn)/)
+) {
+  // listen the whole page change, I think this listener is enough and others which from line 140 to 178 can be deprecated
+  observer.observe(document, {
+    subtree: true,
+    childList: true,
+  });
+}
+
+if (
+  document.location.href.match(/^https?:\/\/(www.)?leetcode.(com|cn)\/problemset\//)
 ) {
   // listen for style change for the very first load
   observer.observe(document.querySelector(".pointer-events-none.opacity-50"), {
@@ -123,7 +161,7 @@ if (
 }
 
 if (
-  document.location.href.match(/^https?:\/\/(www.)?leetcode.com\/problems\//)
+  document.location.href.match(/^https?:\/\/(www.)?leetcode.(com|cn)\/problems\//)
 ) {
   // I can't find a clean selection, so I just use body...
   observer.observe(document.querySelector("body"), {
@@ -139,7 +177,7 @@ if (
   }
 }
 
-if (document.location.href.match(/^https?:\/\/(www.)?leetcode.com\/tag\//)) {
+if (document.location.href.match(/^https?:\/\/(www.)?leetcode.(com|cn)\/tag\//)) {
   observer.observe(document.querySelector("#app"), {
     childList: true,
   });

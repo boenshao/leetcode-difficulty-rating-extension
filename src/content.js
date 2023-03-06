@@ -161,7 +161,7 @@ if (
     childList: true,
   });
 
-  // listen for style change of 'Description' tab to hanlde the url chagne
+  // listen for style change of 'Description' tab
   let tab = document.querySelector(
     "#qd-content > div > div > div > div > div > div > div > a > div:nth-child(1)"
   );

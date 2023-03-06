@@ -96,6 +96,13 @@ const update = async () => {
   );
   replace(ratings, title, difficulty, showNA);
 
+  // leetcode.cn/problems/*/
+  title = document.querySelector('h4[data-cypress="QuestionTitle"]');
+  difficulty = document.querySelector(
+    'span[data-degree="easy"],span[data-degree="medium"],span[data-degree="hard"]'
+  )
+  replace(ratings, title, difficulty, showNA);
+
   // leetcode.com/tag/*/
   document.querySelectorAll("tbody.reactable-data tr").forEach((ele) => {
     title = ele.querySelector('td:nth-child(2)[label="#"]');

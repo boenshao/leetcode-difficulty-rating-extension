@@ -63,7 +63,7 @@ const update = async () => {
   let title;
   let difficulty;
 
-  // leetcode.com/problemset/*
+  // leetcode.com/problemset/* and leetcode.cn/problemset/*
   document.querySelectorAll('[role="row"]').forEach((ele) => {
     title = ele.querySelector('[role="cell"]:nth-child(2) a');
     difficulty = ele.querySelector('[role="cell"]:nth-child(5) span');
@@ -120,51 +120,13 @@ const observer = new MutationObserver((mutations) => {
   mutations.forEach(debounce(update, 300));
 });
 
-if (document.location.href.match(/^https?:\/\/(www.)?leetcode.cn\//)) {
-  // listen the whole page change for CN site
-  // this is not optimal, but fast enough
-  // TODO: optimize for leetcode.cn or also listen to whole page on leetcode.com
+if (
+  document.location.href.match(
+    /^https?:\/\/(www.)?leetcode.(com|cn)\/(problemset|problems|tag)/
+  )
+) {
   observer.observe(document, {
     subtree: true,
-    childList: true,
-  });
-}
-
-if (
-  document.location.href.match(/^https?:\/\/(www.)?leetcode.com\/problemset\//)
-) {
-  // listen for style change for the very first load
-  observer.observe(document.querySelector(".pointer-events-none.opacity-50"), {
-    attributes: true,
-  });
-
-  // listen for navigation, as the style won't be updated for the second time
-  observer.observe(document.querySelector('div > [role="navigation"]'), {
-    attributes: true,
-    characterData: true,
-    subtree: true,
-  });
-}
-
-if (
-  document.location.href.match(/^https?:\/\/(www.)?leetcode.com\/problems\//)
-) {
-  // I can't find a clean selection, so I just use body...
-  observer.observe(document.querySelector("body"), {
-    childList: true,
-  });
-
-  // listen for style change of 'Description' tab
-  let tab = document.querySelector(
-    "#qd-content > div > div > div > div > div > div > div > a > div:nth-child(1)"
-  );
-  if (tab) {
-    observer.observe(tab, {attributes: true});
-  }
-}
-
-if (document.location.href.match(/^https?:\/\/(www.)?leetcode.com\/tag\//)) {
-  observer.observe(document.querySelector("#app"), {
     childList: true,
   });
 }

@@ -73,7 +73,7 @@ const update = async () => {
   // new leetcode.com/problems/*/
   title = document.querySelector("div > span.text-lg.text-label-1.font-medium");
   difficulty = document.querySelector(
-    "div > div.text-xs.font-medium.capitalize"
+    "div > div.text-sm.font-medium.capitalize"
   );
   replace(ratings, title, difficulty, showNA);
 

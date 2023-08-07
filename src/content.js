@@ -71,7 +71,7 @@ const update = async () => {
   });
 
   // new leetcode.com/problems/*/
-  title = document.querySelector("div > span.text-lg.text-label-1.font-medium");
+  title = document.querySelector("div > a.text-lg.text-label-1.font-medium");
   difficulty = document.querySelector(
     "div > div.text-sm.font-medium.capitalize"
   );

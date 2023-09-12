@@ -85,10 +85,8 @@ const update = async () => {
   replace(ratings, title, difficulty, showNA);
 
   // leetcode.cn/problems/*/
-  title = document.querySelector('h4[data-cypress="QuestionTitle"]');
-  difficulty = document.querySelector(
-    'span[data-degree="easy"],span[data-degree="medium"],span[data-degree="hard"]'
-  );
+  title = document.querySelector('div[class^="text-title-"]');
+  difficulty = document.querySelector('div[class*="text-difficulty-"]');
   replace(ratings, title, difficulty, showNA);
 
   // leetcode.com/tag/*/

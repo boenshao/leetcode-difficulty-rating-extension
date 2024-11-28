@@ -1,6 +1,6 @@
 # leetcode-difficulty-rating-extension
 
-[![chrome web store](https://storage.googleapis.com/web-dev-uploads/image/WlD8wC6g8khYWPJUsQceQkhXSlv1/iNEddTyWiMfLSwFD6qGq.png)](https://chrome.google.com/webstore/detail/leetcode-difficulty-ratin/hedijgjklbddpidomdhhngflipnibhca)
+[![chrome web store](https://developer.chrome.com/static/docs/webstore/branding/image/iNEddTyWiMfLSwFD6qGq.png)](https://chrome.google.com/webstore/detail/leetcode-difficulty-ratin/hedijgjklbddpidomdhhngflipnibhca)
 
 ## Introduction
 
@@ -8,7 +8,7 @@ Replace Leetcode problem's difficulty with a more precise contest rating sourced
 
 The green/yellow/red text color is preserved, so you can still tell the official difficulty.
 
-Problems in 1st-62nd weekly contests and problems that did not come from contests don’t have rating data and `N/A` is shown by default. You can change the setting in the extension popup.
+Problems in 1st-62nd weekly contests and problems that did not come from contests don’t have rating data and "N/A" is shown by default. To show the original rating, click the extension icon on the top right of the browser and disable "Show N/A if no rating is available".
 
 ## Preview
 

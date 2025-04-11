@@ -49,7 +49,7 @@ const replace = (ratings, title, difficulty, showNA) => {
   if (!ratings[id]?.Rating && !showNA) return;
 
   difficulty.textContent = difficulty.textContent.replace(
-    /([Hh]ard|[Mm]edium|[Ee]asy|简单|中等|困难|\d{3,4}|N\/A)/,
+    /([Hh]ard|[Mm]ed\.|[Mm]edium|[Ee]asy|简单|中等|困难|\d{3,4}|N\/A)/,
     ratings[id]?.Rating
       ? ratings[id].Rating.split(".")[0] // truncate to integer
       : "N/A" // no data available
@@ -89,19 +89,10 @@ const update = async () => {
   difficulty = document.querySelector('div[class*="text-difficulty-"]');
   replace(ratings, title, difficulty, showNA);
 
-  // leetcode.com/tag/*/
-  document.querySelectorAll("tbody.reactable-data tr").forEach((ele) => {
-    title = ele.querySelector('td:nth-child(2)[label="#"]');
-    difficulty = ele.querySelector(
-      'td:nth-child(5)[label="Difficulty"] > span'
-    );
-    replace(ratings, title, difficulty, showNA);
-  });
-
-  // leetcode.cn/tag/*/
-  document.querySelectorAll("tbody.ant-table-tbody tr").forEach((ele) => {
-    title = ele.querySelector("td:nth-child(2)");
-    difficulty = ele.querySelector("td:nth-child(4) > span");
+  // leetcode.com/problem-list/*/
+  document.querySelectorAll("div > a.group.flex-col").forEach((ele) => {
+    title = ele.querySelector(".ellipsis.line-clamp-1");
+    difficulty = ele.querySelector('p[class*="text-sd-"]');
     replace(ratings, title, difficulty, showNA);
   });
 };
@@ -120,7 +111,7 @@ const observer = new MutationObserver((mutations) => {
 
 if (
   document.location.href.match(
-    /^https?:\/\/(www.)?leetcode.(com|cn)\/(problemset|problems|tag)/
+    /^https?:\/\/(www.)?leetcode.(com|cn)\/(problemset|problems|problem-list)/
   )
 ) {
   observer.observe(document, {

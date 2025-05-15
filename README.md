@@ -1,6 +1,7 @@
 # leetcode-difficulty-rating-extension
 
-[![chrome web store](https://developer.chrome.com/static/docs/webstore/branding/image/iNEddTyWiMfLSwFD6qGq.png)](https://chrome.google.com/webstore/detail/leetcode-difficulty-ratin/hedijgjklbddpidomdhhngflipnibhca)
+[![chrome web store](https://developer.chrome.com/static/docs/webstore/branding/image/UV4C4ybeBTsZt43U4xis.png)](https://chrome.google.com/webstore/detail/leetcode-difficulty-ratin/hedijgjklbddpidomdhhngflipnibhca)
+[![firefox add-on](https://extensionworkshop.com/assets/img/documentation/publish/get-the-addon-178x60px.dad84b42.png)](https://addons.mozilla.org/en-US/firefox/addon/leetcode-difficulty-rating/)
 
 ## Introduction
 

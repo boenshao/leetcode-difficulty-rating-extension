@@ -57,6 +57,8 @@ const replace = (ratings, title, difficulty, showNA) => {
 };
 
 const update = async () => {
+  observer.disconnect();
+
   let ratings = await getRatings();
   let showNA = (await chrome.storage.local.get("showNA")).showNA;
 
@@ -95,6 +97,11 @@ const update = async () => {
     difficulty = ele.querySelector('p[class*="text-sd-"]');
     replace(ratings, title, difficulty, showNA);
   });
+
+  observer.observe(document.body, {
+    subtree: true,
+    childList: true,
+  });
 };
 
 let timer;
@@ -114,7 +121,7 @@ if (
     /^https?:\/\/(www.)?leetcode.(com|cn)\/(problemset|problems|problem-list)/
   )
 ) {
-  observer.observe(document, {
+  observer.observe(document.body, {
     subtree: true,
     childList: true,
   });

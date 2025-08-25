@@ -5,7 +5,7 @@ const parse = (csv) => {
   2872.0290327119	1982	Find Array Given Subset Sums	从子集的和还原数组	find-array-given-subset-sums	weekly-contest-255	Q4
   */
 
-  let lines = csv.split("\n"); // split rows by newline
+  let lines = csv.split('\n'); // split rows by newline
   let headers = lines[0].split(/\t+/); // first row is headers, split cols by tab
 
   let json = {};
@@ -21,7 +21,7 @@ const parse = (csv) => {
 const getRatings = async () => {
   const expire = 3600 * 24 * 1000; // cache for 1 day
 
-  let items = await chrome.storage.local.get(["ratings", "cacheTime"]);
+  let items = await chrome.storage.local.get(['ratings', 'cacheTime']);
   if (
     items.ratings &&
     items.cacheTime &&
@@ -32,11 +32,11 @@ const getRatings = async () => {
 
   let ratings = parse(
     await fetch(
-      "https://raw.githubusercontent.com/zerotrac/leetcode_problem_rating/main/ratings.txt"
+      'https://raw.githubusercontent.com/zerotrac/leetcode_problem_rating/main/ratings.txt'
     ).then((res) => res.text())
   );
 
-  await chrome.storage.local.set({ratings: ratings, cacheTime: Date.now()});
+  await chrome.storage.local.set({ ratings: ratings, cacheTime: Date.now() });
 
   return ratings;
 };
@@ -44,15 +44,15 @@ const getRatings = async () => {
 const replace = (ratings, title, difficulty, showNA) => {
   if (!title || !difficulty) return;
 
-  const id = title.textContent.split(".")[0];
+  const id = title.textContent.split('.')[0];
 
   if (!ratings[id]?.Rating && !showNA) return;
 
   difficulty.textContent = difficulty.textContent.replace(
     /([Hh]ard|[Mm]ed\.|[Mm]edium|[Ee]asy|简单|中等|困难|\d{3,4}|N\/A)/,
     ratings[id]?.Rating
-      ? ratings[id].Rating.split(".")[0] // truncate to integer
-      : "N/A" // no data available
+      ? ratings[id].Rating.split('.')[0] // truncate to integer
+      : 'N/A' // no data available
   );
 };
 
@@ -60,7 +60,7 @@ const update = async () => {
   observer.disconnect();
 
   let ratings = await getRatings();
-  let showNA = (await chrome.storage.local.get("showNA")).showNA;
+  let showNA = (await chrome.storage.local.get('showNA')).showNA;
 
   let title;
   let difficulty;
@@ -73,9 +73,9 @@ const update = async () => {
   });
 
   // new leetcode.com/problems/*/
-  title = document.querySelector("div > a.text-lg.text-label-1.font-medium");
+  title = document.querySelector('div > a.text-lg.text-label-1.font-medium');
   difficulty = document.querySelector(
-    "div > div.text-sm.font-medium.capitalize"
+    'div > div.text-sm.font-medium.capitalize'
   );
   replace(ratings, title, difficulty, showNA);
 
@@ -93,9 +93,9 @@ const update = async () => {
 
   // leetcode.com/problem-list/*/
   document
-    .querySelectorAll("div > a.group.flex-col, div > div.group.flex-col")
+    .querySelectorAll('div > a.group.flex-col, div > div.group.flex-col')
     .forEach((ele) => {
-      title = ele.querySelector(".ellipsis.line-clamp-1");
+      title = ele.querySelector('.ellipsis.line-clamp-1');
       difficulty = ele.querySelector('p[class*="text-sd-"]');
       replace(ratings, title, difficulty, showNA);
     });

@@ -92,11 +92,13 @@ const update = async () => {
   replace(ratings, title, difficulty, showNA);
 
   // leetcode.com/problem-list/*/
-  document.querySelectorAll("div > a.group.flex-col").forEach((ele) => {
-    title = ele.querySelector(".ellipsis.line-clamp-1");
-    difficulty = ele.querySelector('p[class*="text-sd-"]');
-    replace(ratings, title, difficulty, showNA);
-  });
+  document
+    .querySelectorAll("div > a.group.flex-col, div > div.group.flex-col")
+    .forEach((ele) => {
+      title = ele.querySelector(".ellipsis.line-clamp-1");
+      difficulty = ele.querySelector('p[class*="text-sd-"]');
+      replace(ratings, title, difficulty, showNA);
+    });
 
   observer.observe(document.body, {
     subtree: true,

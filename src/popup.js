@@ -4,11 +4,37 @@ checkBoxShowNA.addEventListener("change", async (e) => {
   await chrome.storage.local.set({showNA: e.target.checked});
 });
 
-for (const id of ["clistUser", "clistKey"]) {
-  let input = document.getElementById(id);
-  input.value = (await chrome.storage.local.get(id))[id] ?? "";
-  input.addEventListener("change", async (e) => {
-    // force refresh cache so new credentials take effect
-    await chrome.storage.local.set({[id]: e.target.value.trim(), cacheTime: 0});
+let user = document.getElementById("clistUser");
+let key = document.getElementById("clistKey");
+let status = document.getElementById("status");
+let save = document.getElementById("save");
+
+const showStatus = () => {
+  let on = Boolean(user.value && key.value);
+  status.textContent = on ? "Enabled" : "Off";
+  status.classList.toggle("on", on);
+};
+
+let saved = await chrome.storage.local.get(["clistUser", "clistKey"]);
+user.value = saved.clistUser ?? "";
+key.value = saved.clistKey ?? "";
+showStatus();
+
+document.getElementById("toggleKey").addEventListener("click", (e) => {
+  let hidden = key.type === "password";
+  key.type = hidden ? "text" : "password";
+  e.target.textContent = hidden ? "Hide" : "Show";
+});
+
+document.getElementById("clist").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  // force refresh cache so new credentials take effect
+  await chrome.storage.local.set({
+    clistUser: user.value.trim(),
+    clistKey: key.value.trim(),
+    cacheTime: 0,
   });
-}
+  showStatus();
+  save.textContent = "Saved";
+  setTimeout(() => (save.textContent = "Save"), 1500);
+});

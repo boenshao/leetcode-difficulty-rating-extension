@@ -20,6 +20,15 @@ user.value = saved.clistUser ?? "";
 key.value = saved.clistKey ?? "";
 showStatus();
 
+// split a pasted "Authorization: ApiKey username:key" line into both fields
+key.addEventListener("input", () => {
+  let match = key.value.trim().match(/^(?:Authorization:\s*)?(?:ApiKey\s+)?([^\s:]+):(\S+)$/i);
+  if (!match) return;
+  user.value = match[1];
+  key.value = match[2];
+  showStatus();
+});
+
 document.getElementById("toggleKey").addEventListener("click", (e) => {
   let hidden = key.type === "password";
   key.type = hidden ? "text" : "password";

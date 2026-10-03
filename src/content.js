@@ -62,6 +62,9 @@ const lookupClist = async (name) => {
   update();
 };
 
+// the popup switch, off hides clist.by ratings and stops looking them up
+let clistOn = true;
+
 // lookup: ask clist.by if this problem has no cached rating, only the main
 // problem of a problem page does, so lists never cost a request per row
 const replace = (ratings, title, difficulty, showNA, lookup = false) => {
@@ -69,13 +72,14 @@ const replace = (ratings, title, difficulty, showNA, lookup = false) => {
 
   const [id, ...rest] = title.textContent.split('. ');
   const name = rest.join('. ');
-  const entry = ratings[id] ?? ratings[name];
+  let entry = ratings[id] ?? ratings[name];
+  if (entry?.Source === 'clist.by' && !clistOn) entry = undefined;
 
   if (!entry) {
     // keep the original difficulty while waiting for clist.by, for every
     // element of this problem (the page lists it in a side panel too)
     if (lookups.get(name)) return;
-    if (lookup && name && !lookups.has(name)) {
+    if (clistOn && lookup && name && !lookups.has(name)) {
       lookupClist(name);
       return;
     }
@@ -103,7 +107,9 @@ const update = async () => {
   observer.disconnect();
 
   let ratings = await getRatings();
-  let showNA = (await chrome.storage.local.get('showNA')).showNA;
+  let options = await chrome.storage.local.get(['showNA', 'clistEnabled']);
+  let showNA = options.showNA;
+  clistOn = options.clistEnabled !== false;
 
   let title;
   let difficulty;

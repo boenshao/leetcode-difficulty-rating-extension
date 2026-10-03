@@ -11,7 +11,7 @@ The green/yellow/red text color is preserved, so you can still tell the official
 
 Problems in 1st-62nd weekly contests and problems that did not come from contests don’t have rating data and "N/A" is shown by default. To show the original rating, click the extension icon on the top right of the browser and disable "Show N/A if no rating is available".
 
-For problems missing from that dataset, the rating is looked up on demand from [clist.by](https://clist.by) (rate limited, so it may take a few seconds to show). Enter your clist.by username and [API key](https://clist.by/api/v4/doc/) in the extension popup to enable it.
+For problems missing from that dataset, the rating is looked up on demand from [clist.by](https://clist.by) (rate limited, so it may take a few seconds to show). Enter your clist.by username and [API key](https://clist.by/api/v4/doc/) in the extension popup to enable it. Ratings from clist.by are shown with a `c` suffix (e.g. `1275c`), and hovering a rating shows where it came from.
 
 ## Preview
 

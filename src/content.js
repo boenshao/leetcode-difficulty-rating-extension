@@ -54,7 +54,7 @@ const lookupClist = async (name) => {
   if (rating !== null) {
     // re-read, the cache may have been refreshed meanwhile
     const ratings = await getRatings();
-    ratings[name] = {Rating: rating};
+    ratings[name] = {Rating: rating, Source: 'clist.by'};
     await chrome.storage.local.set({ ratings: ratings });
   }
   // only now, so no update sees the lookup done but the rating not cached yet
@@ -85,12 +85,18 @@ const replace = (ratings, title, difficulty, showNA, lookup = false) => {
 
   if (!rating && !showNA) return;
 
+  // ratings from clist.by get a "c" suffix and a tooltip naming the source
+  const clist = entry?.Source === 'clist.by';
+
   difficulty.textContent = difficulty.textContent.replace(
-    /([Hh]ard|[Mm]ed\.|[Mm]edium|[Ee]asy|简单|中等|困难|\d{3,4}|N\/A)/,
+    /([Hh]ard|[Mm]ed\.|[Mm]edium|[Ee]asy|简单|中等|困难|\d{3,4}c?|N\/A)/,
     rating
-      ? rating.split('.')[0] // truncate to integer
+      ? rating.split('.')[0] + (clist ? 'c' : '') // truncate to integer
       : 'N/A' // no data available
   );
+  if (rating) {
+    difficulty.title = `Rating from ${clist ? 'clist.by' : 'zerotrac'}`;
+  }
 };
 
 const update = async () => {

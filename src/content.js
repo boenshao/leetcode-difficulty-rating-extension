@@ -37,21 +37,58 @@ const getRatings = async () => {
   );
 
   await chrome.storage.local.set({ ratings: ratings, cacheTime: Date.now() });
+  lookups.clear(); // the refresh dropped cached clist.by ratings, ask again
 
   return ratings;
 };
 
-const replace = (ratings, title, difficulty, showNA) => {
+// title -> true while the clist.by lookup is in flight, false once it is done
+const lookups = new Map();
+
+// clist.by is queried per problem, only for problems zerotrac lacks.
+// Results are cached by title, like zerotrac's rows are cached by ID.
+const lookupClist = async (name) => {
+  lookups.set(name, true);
+  const rating = await chrome.runtime.sendMessage(name); // null if unavailable
+
+  if (rating !== null) {
+    // re-read, the cache may have been refreshed meanwhile
+    const ratings = await getRatings();
+    ratings[name] = {Rating: rating};
+    await chrome.storage.local.set({ ratings: ratings });
+  }
+  // only now, so no update sees the lookup done but the rating not cached yet
+  lookups.set(name, false);
+  update();
+};
+
+// lookup: ask clist.by if this problem has no cached rating, only the main
+// problem of a problem page does, so lists never cost a request per row
+const replace = (ratings, title, difficulty, showNA, lookup = false) => {
   if (!title || !difficulty) return;
 
-  const id = title.textContent.split('.')[0];
+  const [id, ...rest] = title.textContent.split('. ');
+  const name = rest.join('. ');
+  const entry = ratings[id] ?? ratings[name];
 
-  if (!ratings[id]?.Rating && !showNA) return;
+  if (!entry) {
+    // keep the original difficulty while waiting for clist.by, for every
+    // element of this problem (the page lists it in a side panel too)
+    if (lookups.get(name)) return;
+    if (lookup && name && !lookups.has(name)) {
+      lookupClist(name);
+      return;
+    }
+  }
+
+  const rating = entry?.Rating;
+
+  if (!rating && !showNA) return;
 
   difficulty.textContent = difficulty.textContent.replace(
     /([Hh]ard|[Mm]ed\.|[Mm]edium|[Ee]asy|简单|中等|困难|\d{3,4}|N\/A)/,
-    ratings[id]?.Rating
-      ? ratings[id].Rating.split('.')[0] // truncate to integer
+    rating
+      ? rating.split('.')[0] // truncate to integer
       : 'N/A' // no data available
   );
 };
@@ -77,19 +114,19 @@ const update = async () => {
   difficulty = document.querySelector(
     'div > div.text-sm.font-medium.capitalize'
   );
-  replace(ratings, title, difficulty, showNA);
+  replace(ratings, title, difficulty, showNA, true);
 
   // old leetcode.com/problems/*/
   title = document.querySelector('div[data-cy="question-title"]');
   difficulty = document.querySelector(
     'div[diff="easy"],div[diff="medium"],div[diff="hard"]'
   );
-  replace(ratings, title, difficulty, showNA);
+  replace(ratings, title, difficulty, showNA, true);
 
   // leetcode.cn/problems/*/
   title = document.querySelector('div[class^="text-title-"]');
   difficulty = document.querySelector('div[class*="text-difficulty-"]');
-  replace(ratings, title, difficulty, showNA);
+  replace(ratings, title, difficulty, showNA, true);
 
   // leetcode.com/problem-list/*/
   document

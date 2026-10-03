@@ -7,7 +7,7 @@ chrome.runtime.onInstalled.addListener(async () => {
   });
 });
 
-let lastFetch = 0;
+let nextFetch = 0; // earliest time clist.by may be asked again
 
 // Fetched here, not in the content script, to avoid the page's CORS rules.
 // Resolves to the rating ('' if clist has none), or null if it can't be asked.
@@ -16,15 +16,15 @@ const getClistRating = async (name) => {
     'clistUser',
     'clistKey',
   ]);
-  if (!clistUser || !clistKey) return null;
-  if (!(await chrome.permissions.contains({origins: ['https://clist.by/*']})))
-    return null;
+  const allowed = await chrome.permissions.contains({
+    origins: ['https://clist.by/*'],
+  });
+  if (!clistUser || !clistKey || !allowed) return null;
 
-  // clist allows 10 requests per minute, space requests 6s apart
-  await new Promise((resolve) =>
-    setTimeout(resolve, lastFetch + 6000 - Date.now())
-  );
-  lastFetch = Date.now();
+  // clist allows 10 requests per minute, space them 6s apart
+  const slot = Math.max(nextFetch, Date.now());
+  nextFetch = slot + 6000;
+  await new Promise((resolve) => setTimeout(resolve, slot - Date.now()));
 
   try {
     // keep the key out of the URL
@@ -41,9 +41,7 @@ const getClistRating = async (name) => {
   }
 };
 
-// one lookup at a time
-let queue = Promise.resolve();
 chrome.runtime.onMessage.addListener((name, sender, sendResponse) => {
-  queue = queue.then(() => getClistRating(name)).then(sendResponse);
+  getClistRating(name).then(sendResponse);
   return true; // respond asynchronously
 });

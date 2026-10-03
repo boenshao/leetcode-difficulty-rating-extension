@@ -6,9 +6,8 @@ checkBoxShowNA.addEventListener("change", async (e) => {
 
 let clistUser = document.getElementById("clistUser");
 let clistKey = document.getElementById("clistKey");
-let saved = await chrome.storage.local.get(["clistUser", "clistKey"]);
-clistUser.value = saved.clistUser ?? "";
-clistKey.value = saved.clistKey ?? "";
+clistUser.value = (await chrome.storage.local.get("clistUser")).clistUser ?? "";
+clistKey.value = (await chrome.storage.local.get("clistKey")).clistKey ?? "";
 
 document.getElementById("clistSave").addEventListener("click", async () => {
   let user = clistUser.value.trim();

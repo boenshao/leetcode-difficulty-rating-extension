@@ -73,6 +73,29 @@
       </details>
     </section>
 
+    <section class="card">
+      <details>
+        <summary>How are ratings calculated?</summary>
+        <p>
+          Both sources use Elo: a problem's rating is the skill level at which
+          a contestant would solve it as often as contestants really did.
+        </p>
+        <code>P(solve) = 1 / (1 + 10^((problem - user) / 400))</code>
+        <p>
+          <b>Plain numbers</b> come from
+          <a href="https://github.com/zerotrac/leetcode_problem_rating" target="_blank" rel="noreferrer">zerotrac</a>:
+          Elo plus maximum likelihood estimation over contest results. Their
+          code is not published and weekly contests 1-62 are not covered.
+        </p>
+        <p>
+          <b>Numbers ending in c</b> come from clist.by: each contestant counts
+          by their rating, experienced ones weigh more, and the problem rating
+          is the one where the expected solves match the real number. The
+          formula differs from zerotrac's, so compare them with care.
+        </p>
+      </details>
+    </section>
+
     <script src="./popup.js" type="module"></script>
   </body>
 </html>

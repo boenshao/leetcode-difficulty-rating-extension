@@ -261,7 +261,8 @@ b.k {
   color: var(--success);
 }
 
-details .hint {
+details .hint,
+details p {
   margin-top: 0.5rem;
 }
 

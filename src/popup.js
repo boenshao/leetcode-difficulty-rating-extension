@@ -6,19 +6,21 @@ checkBoxShowNA.addEventListener("change", async (e) => {
 
 let user = document.getElementById("clistUser");
 let key = document.getElementById("clistKey");
-let status = document.getElementById("status");
+let enabled = document.getElementById("clistEnabled");
 let save = document.getElementById("save");
 
-const showStatus = () => {
-  let on = Boolean(user.value && key.value);
-  status.textContent = on ? "Enabled" : "Off";
-  status.classList.toggle("on", on);
-};
-
-let saved = await chrome.storage.local.get(["clistUser", "clistKey"]);
+let saved = await chrome.storage.local.get([
+  "clistUser",
+  "clistKey",
+  "clistEnabled",
+]);
 user.value = saved.clistUser ?? "";
 key.value = saved.clistKey ?? "";
-showStatus();
+// on by default, only an explicit false turns it off
+enabled.checked = saved.clistEnabled !== false;
+enabled.addEventListener("change", async (e) => {
+  await chrome.storage.local.set({clistEnabled: e.target.checked});
+});
 
 // split a pasted "Authorization: ApiKey username:key" line into both fields
 key.addEventListener("input", () => {
@@ -26,7 +28,6 @@ key.addEventListener("input", () => {
   if (!match) return;
   user.value = match[1];
   key.value = match[2];
-  showStatus();
 });
 
 document.getElementById("toggleKey").addEventListener("click", (e) => {
@@ -43,7 +44,6 @@ document.getElementById("clist").addEventListener("submit", async (e) => {
     clistKey: key.value.trim(),
     cacheTime: 0,
   });
-  showStatus();
   save.textContent = "Saved";
   setTimeout(() => (save.textContent = "Save"), 1500);
 });

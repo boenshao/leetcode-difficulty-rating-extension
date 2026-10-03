@@ -130,21 +130,6 @@ label.row {
   transform: translateX(1rem);
 }
 
-/* badge */
-.badge {
-  padding: 0.125rem 0.5rem;
-  border: 1px solid var(--border);
-  border-radius: 999px;
-  color: var(--muted-foreground);
-  font-size: 0.75rem;
-  font-weight: 500;
-}
-
-.badge.on {
-  border-color: var(--success);
-  color: var(--success);
-}
-
 /* form */
 form {
   display: flex;

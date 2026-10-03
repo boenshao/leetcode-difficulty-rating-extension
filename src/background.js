@@ -17,6 +17,8 @@ const getClistRating = async (name) => {
     'clistKey',
   ]);
   if (!clistUser || !clistKey) return null;
+  if (!(await chrome.permissions.contains({origins: ['https://clist.by/*']})))
+    return null;
 
   // clist allows 10 requests per minute, space requests 6s apart
   await new Promise((resolve) =>
@@ -25,14 +27,11 @@ const getClistRating = async (name) => {
   lastFetch = Date.now();
 
   try {
+    // keep the key out of the URL
     const res = await fetch(
       'https://clist.by/api/v4/problem/?' +
-        new URLSearchParams({
-          username: clistUser,
-          api_key: clistKey,
-          resource: 'leetcode.com',
-          name,
-        })
+        new URLSearchParams({resource: 'leetcode.com', name}),
+      {headers: {Authorization: `ApiKey ${clistUser}:${clistKey}`}}
     );
     if (!res.ok) return null;
     const problem = (await res.json()).objects.find((p) => p.name === name);

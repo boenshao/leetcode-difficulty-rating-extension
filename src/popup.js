@@ -4,11 +4,19 @@ checkBoxShowNA.addEventListener("change", async (e) => {
   await chrome.storage.local.set({showNA: e.target.checked});
 });
 
-for (const id of ["clistUser", "clistKey"]) {
-  let input = document.getElementById(id);
-  input.value = (await chrome.storage.local.get(id))[id] ?? "";
-  input.addEventListener("change", async (e) => {
-    // force refresh cache so new credentials take effect
-    await chrome.storage.local.set({[id]: e.target.value.trim(), cacheTime: 0});
-  });
-}
+let clistUser = document.getElementById("clistUser");
+let clistKey = document.getElementById("clistKey");
+let saved = await chrome.storage.local.get(["clistUser", "clistKey"]);
+clistUser.value = saved.clistUser ?? "";
+clistKey.value = saved.clistKey ?? "";
+
+document.getElementById("clistSave").addEventListener("click", async () => {
+  let user = clistUser.value.trim();
+  let key = clistKey.value.trim();
+  // force refresh cache so new credentials take effect
+  await chrome.storage.local.set({clistUser: user, clistKey: key, cacheTime: 0});
+  // permission prompts need a user gesture
+  if (user && key) {
+    await chrome.permissions.request({origins: ["https://clist.by/*"]});
+  }
+});

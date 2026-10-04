@@ -4,13 +4,19 @@ checkBoxShowNA.addEventListener("change", async (e) => {
   await chrome.storage.local.set({showNA: e.target.checked});
 });
 
+const clistOrigins = {origins: ["https://clist.by/*"]};
 let checkBoxClist = document.getElementById("clistEnabled");
-checkBoxClist.checked = (await chrome.storage.local.get("clistEnabled")).clistEnabled;
+checkBoxClist.checked =
+  (await chrome.storage.local.get("clistEnabled")).clistEnabled &&
+  (await chrome.permissions.contains(clistOrigins));
 checkBoxClist.addEventListener("change", async (e) => {
-  await chrome.storage.local.set({clistEnabled: e.target.checked});
-  // permission prompts need a user gesture
+  // Chrome closes the popup when the permission prompt opens, so save
+  // first. Firefox checks for the user gesture when permissions.request
+  // is called, so nothing is awaited before it.
+  chrome.storage.local.set({clistEnabled: e.target.checked});
   if (e.target.checked) {
-    await chrome.permissions.request({origins: ["https://clist.by/*"]});
+    e.target.checked = await chrome.permissions.request(clistOrigins);
+    await chrome.storage.local.set({clistEnabled: e.target.checked});
   }
 });
 

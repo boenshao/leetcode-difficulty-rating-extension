@@ -45,9 +45,9 @@ const getRatings = async () => {
 // id -> true while clist.by is being asked, false once it answered
 const lookingUpClist = new Map();
 
-const lookupClist = async (id, name) => {
+const lookupClist = async (id, slug) => {
   lookingUpClist.set(id, true);
-  let rating = await chrome.runtime.sendMessage(name); // null if unavailable
+  let rating = await chrome.runtime.sendMessage(slug); // null if unavailable
   if (rating !== null) {
     let ratings = await getRatings();
     ratings[id] = { Rating: rating, Source: 'clist.by' };
@@ -65,8 +65,9 @@ const replace = (ratings, title, difficulty, showNA, useClist = false) => {
   let id = title.textContent.split('.')[0];
 
   if (!ratings[id]) {
-    let name = title.textContent.slice(id.length + 2); // after "123. "
-    if (useClist && !lookingUpClist.has(id)) lookupClist(id, name);
+    // the slug is the same on leetcode.com and leetcode.cn, the title is not
+    let slug = location.pathname.match(/^\/problems\/([^/]+)/)?.[1];
+    if (useClist && !lookingUpClist.has(id)) lookupClist(id, slug);
     if (lookingUpClist.get(id)) return; // keep the original text while waiting
   }
 

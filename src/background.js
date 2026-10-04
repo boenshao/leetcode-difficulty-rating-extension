@@ -11,7 +11,7 @@ let nextFetch = 0; // earliest time clist.by may be asked again
 
 // Fetched here, not in the content script, to avoid the page's CORS rules.
 // Resolves to the rating ('' if clist has none), or null if it can't be asked.
-const getClistRating = async (name) => {
+const getClistRating = async (slug) => {
   const {clistUser, clistKey} = await chrome.storage.local.get([
     'clistUser',
     'clistKey',
@@ -30,18 +30,18 @@ const getClistRating = async (name) => {
     // keep the key out of the URL
     const res = await fetch(
       'https://clist.by/api/v4/problem/?' +
-        new URLSearchParams({resource: 'leetcode.com', name}),
+        new URLSearchParams({resource: 'leetcode.com', slug}),
       {headers: {Authorization: `ApiKey ${clistUser}:${clistKey}`}}
     );
     if (!res.ok) return null;
-    const problem = (await res.json()).objects.find((p) => p.name === name);
+    const problem = (await res.json()).objects.find((p) => p.slug === slug);
     return problem?.rating ? String(problem.rating) : '';
   } catch (e) {
     return null;
   }
 };
 
-chrome.runtime.onMessage.addListener((name, sender, sendResponse) => {
-  getClistRating(name).then(sendResponse);
+chrome.runtime.onMessage.addListener((slug, sender, sendResponse) => {
+  getClistRating(slug).then(sendResponse);
   return true; // respond asynchronously
 });

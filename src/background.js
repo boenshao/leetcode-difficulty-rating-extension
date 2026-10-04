@@ -12,14 +12,16 @@ let nextFetch = 0; // earliest time clist.by may be asked again
 // Fetched here, not in the content script, to avoid the page's CORS rules.
 // Resolves to the rating ('' if clist has none), or null if it can't be asked.
 const getClistRating = async (slug) => {
-  const {clistUser, clistKey} = await chrome.storage.local.get([
+  const {clistUser, clistKey, clistEnabled} = await chrome.storage.local.get([
     'clistUser',
     'clistKey',
+    'clistEnabled',
   ]);
   const allowed = await chrome.permissions.contains({
     origins: ['https://clist.by/*'],
   });
-  if (!clistUser || !clistKey || !allowed) return null;
+  // on by default, the popup switch only turns it off
+  if (clistEnabled === false || !clistUser || !clistKey || !allowed) return null;
 
   // clist allows 10 requests per minute, space them 6s apart
   const slot = Math.max(nextFetch, Date.now());

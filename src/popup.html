@@ -7,25 +7,95 @@
     <link rel="stylesheet" href="./popup.css" />
   </head>
   <body>
-    <fieldset>
-      <legend>Options</legend>
+    <header>
+      <img src="../icons/icon-48.png" alt="" width="32" height="32" />
       <div>
-        <input type="checkbox" id="showNA" name="showNA" />
-        <label for="showNA">Show N/A if no rating is available</label>
+        <h1>Difficulty Rating</h1>
+        <p>Contest ratings for LeetCode problems</p>
       </div>
-    </fieldset>
-    <fieldset>
-      <legend>clist.by (optional)</legend>
-      <div>
+    </header>
+
+    <section class="card">
+      <label class="row" for="showNA">
+        <span>
+          <span class="title">Show N/A</span>
+          <span class="hint">Show N/A when no rating is available</span>
+        </span>
+        <input type="checkbox" id="showNA" name="showNA" class="switch" role="switch" />
+      </label>
+    </section>
+
+    <section class="card">
+      <div class="row">
+        <h2 class="title">clist.by ratings</h2>
+        <input type="checkbox" id="clistEnabled" class="switch" role="switch" aria-label="Use clist.by ratings" />
+      </div>
+      <p class="hint">
+        Fill in ratings that are missing from the main dataset, like most
+        non-contest problems. Needs a free clist.by account.
+      </p>
+
+      <form id="clist">
         <label for="clistUser">Username</label>
-        <input type="text" id="clistUser" />
-      </div>
-      <div>
+        <input id="clistUser" type="text" autocomplete="off" spellcheck="false" />
+
         <label for="clistKey">API key</label>
-        <input type="password" id="clistKey" />
-      </div>
-      <button id="clistSave">Save</button>
-    </fieldset>
+        <div class="group">
+          <input id="clistKey" type="password" autocomplete="off" spellcheck="false" />
+          <button type="button" id="toggleKey" class="ghost">Show</button>
+        </div>
+
+        <button type="submit" id="save" class="primary">Save</button>
+      </form>
+
+      <details>
+        <summary>How do I get an API key?</summary>
+        <ol>
+          <li>
+            <a href="https://clist.by/" target="_blank" rel="noreferrer">Sign up or log in</a>
+            on clist.by.
+          </li>
+          <li>
+            Open the
+            <a href="https://clist.by/api/v4/doc/" target="_blank" rel="noreferrer">API page</a>
+            and click the API key link at the top.
+          </li>
+          <li>
+            You will see a line like this:
+            <code>Authorization: ApiKey <b class="u">yourname</b>:<b class="k">abc123</b></code>
+          </li>
+          <li>
+            Put the <b class="u">part before the colon</b> in Username and the
+            <b class="k">part after it</b> in API key, then press Save.
+          </li>
+        </ol>
+        <p class="hint">Tip: paste that whole line into the API key field and it is split for you.</p>
+      </details>
+    </section>
+
+    <section class="card">
+      <details>
+        <summary>How are ratings calculated?</summary>
+        <p>
+          Both sources use Elo: a problem's rating is the skill level at which
+          a contestant would solve it as often as contestants really did.
+        </p>
+        <code>P(solve) = 1 / (1 + 10^((problem - user) / 400))</code>
+        <p>
+          <b>Plain numbers</b> come from
+          <a href="https://github.com/zerotrac/leetcode_problem_rating" target="_blank" rel="noreferrer">zerotrac</a>:
+          Elo plus maximum likelihood estimation over contest results. Their
+          code is not published and weekly contests 1-62 are not covered.
+        </p>
+        <p>
+          <b>Numbers ending in c</b> come from clist.by: each contestant counts
+          by their rating, experienced ones weigh more, and the problem rating
+          is the one where the expected solves match the real number. The
+          formula differs from zerotrac's, so compare them with care.
+        </p>
+      </details>
+    </section>
+
     <script src="./popup.js" type="module"></script>
   </body>
 </html>

@@ -57,25 +57,30 @@ const lookupClist = async (id, slug) => {
   update();
 };
 
+// the popup switch, off hides clist.by ratings and stops looking them up
+let clistOn = true;
+
 // useClist: ask clist.by if zerotrac lacks the problem, only for the main
 // problem of a problem page, so lists never cost a request per row
 const replace = (ratings, title, difficulty, showNA, useClist = false) => {
   if (!title || !difficulty) return;
 
   let id = title.textContent.split('.')[0];
+  let entry = ratings[id];
+  if (entry?.Source === 'clist.by' && !clistOn) entry = undefined;
 
-  if (!ratings[id]) {
+  if (!entry) {
     // the slug is the same on leetcode.com and leetcode.cn, the title is not
     let slug = location.pathname.match(/^\/problems\/([^/]+)/)?.[1];
-    if (useClist && !lookingUpClist.has(id)) lookupClist(id, slug);
+    if (clistOn && useClist && !lookingUpClist.has(id)) lookupClist(id, slug);
     if (lookingUpClist.get(id)) return; // keep the original text while waiting
   }
 
-  let rating = ratings[id]?.Rating;
+  let rating = entry?.Rating;
   if (!rating && !showNA) return;
 
   // ratings from clist.by get a "c" suffix and a tooltip naming the source
-  let source = ratings[id]?.Source ?? 'zerotrac';
+  let source = entry?.Source ?? 'zerotrac';
   difficulty.textContent = difficulty.textContent.replace(
     /([Hh]ard|[Mm]ed\.|[Mm]edium|[Ee]asy|简单|中等|困难|\d{3,4}c?|N\/A)/,
     rating
@@ -89,7 +94,9 @@ const update = async () => {
   observer.disconnect();
 
   let ratings = await getRatings();
-  let showNA = (await chrome.storage.local.get('showNA')).showNA;
+  let options = await chrome.storage.local.get(['showNA', 'clistEnabled']);
+  let showNA = options.showNA;
+  clistOn = options.clistEnabled !== false;
 
   let title;
   let difficulty;

@@ -38,12 +38,14 @@ document.getElementById("toggleKey").addEventListener("click", (e) => {
 
 document.getElementById("clist").addEventListener("submit", async (e) => {
   e.preventDefault();
+  let clistUser = user.value.trim();
+  let clistKey = key.value.trim();
   // force refresh cache so new credentials take effect
-  await chrome.storage.local.set({
-    clistUser: user.value.trim(),
-    clistKey: key.value.trim(),
-    cacheTime: 0,
-  });
+  await chrome.storage.local.set({clistUser, clistKey, cacheTime: 0});
+  // permission prompts need a user gesture
+  if (clistUser && clistKey) {
+    await chrome.permissions.request({origins: ["https://clist.by/*"]});
+  }
   save.textContent = "Saved";
   setTimeout(() => (save.textContent = "Save"), 1500);
 });

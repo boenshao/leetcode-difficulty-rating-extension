@@ -37,70 +37,57 @@ const getRatings = async () => {
   );
 
   await chrome.storage.local.set({ ratings: ratings, cacheTime: Date.now() });
-  lookups.clear(); // the refresh dropped cached clist.by ratings, ask again
+  lookingUpClist.clear();
 
   return ratings;
 };
 
-// title -> true while the clist.by lookup is in flight, false once it is done
-const lookups = new Map();
+// id -> true while clist.by is being asked, false once it answered
+const lookingUpClist = new Map();
 
-// clist.by is queried per problem, only for problems zerotrac lacks.
-// Results are cached by title, like zerotrac's rows are cached by ID.
-const lookupClist = async (name) => {
-  lookups.set(name, true);
-  const rating = await chrome.runtime.sendMessage(name); // null if unavailable
-
+const lookupClist = async (id, slug) => {
+  lookingUpClist.set(id, true);
+  let rating = await chrome.runtime.sendMessage(slug); // null if unavailable
   if (rating !== null) {
-    // re-read, the cache may have been refreshed meanwhile
-    const ratings = await getRatings();
-    ratings[name] = {Rating: rating, Source: 'clist.by'};
+    let ratings = await getRatings();
+    ratings[id] = { Rating: rating, Source: 'clist.by' };
     await chrome.storage.local.set({ ratings: ratings });
   }
-  // only now, so no update sees the lookup done but the rating not cached yet
-  lookups.set(name, false);
+  lookingUpClist.set(id, false);
   update();
 };
 
 // the popup switch, off hides clist.by ratings and stops looking them up
 let clistOn = true;
 
-// lookup: ask clist.by if this problem has no cached rating, only the main
-// problem of a problem page does, so lists never cost a request per row
-const replace = (ratings, title, difficulty, showNA, lookup = false) => {
+// useClist: ask clist.by if zerotrac lacks the problem, only for the main
+// problem of a problem page, so lists never cost a request per row
+const replace = (ratings, title, difficulty, showNA, useClist = false) => {
   if (!title || !difficulty) return;
 
-  const [id, ...rest] = title.textContent.split('. ');
-  const name = rest.join('. ');
-  let entry = ratings[id] ?? ratings[name];
+  let id = title.textContent.split('.')[0];
+  let entry = ratings[id];
   if (entry?.Source === 'clist.by' && !clistOn) entry = undefined;
 
   if (!entry) {
-    // keep the original difficulty while waiting for clist.by, for every
-    // element of this problem (the page lists it in a side panel too)
-    if (lookups.get(name)) return;
-    if (clistOn && lookup && name && !lookups.has(name)) {
-      lookupClist(name);
-      return;
-    }
+    // the slug is the same on leetcode.com and leetcode.cn, the title is not
+    let slug = location.pathname.match(/^\/problems\/([^/]+)/)?.[1];
+    if (clistOn && useClist && !lookingUpClist.has(id)) lookupClist(id, slug);
+    if (lookingUpClist.get(id)) return; // keep the original text while waiting
   }
 
-  const rating = entry?.Rating;
-
+  let rating = entry?.Rating;
   if (!rating && !showNA) return;
 
   // ratings from clist.by get a "c" suffix and a tooltip naming the source
-  const clist = entry?.Source === 'clist.by';
-
+  let source = entry?.Source ?? 'zerotrac';
   difficulty.textContent = difficulty.textContent.replace(
     /([Hh]ard|[Mm]ed\.|[Mm]edium|[Ee]asy|简单|中等|困难|\d{3,4}c?|N\/A)/,
     rating
-      ? rating.split('.')[0] + (clist ? 'c' : '') // truncate to integer
+      ? rating.split('.')[0] + (source === 'clist.by' ? 'c' : '') // truncate to integer
       : 'N/A' // no data available
   );
-  if (rating) {
-    difficulty.title = `Rating from ${clist ? 'clist.by' : 'zerotrac'}`;
-  }
+  if (rating) difficulty.title = `Rating from ${source}`;
 };
 
 const update = async () => {

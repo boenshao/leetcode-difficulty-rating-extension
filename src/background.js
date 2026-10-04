@@ -7,46 +7,43 @@ chrome.runtime.onInstalled.addListener(async () => {
   });
 });
 
-let lastFetch = 0;
+let nextFetch = 0; // earliest time clist.by may be asked again
 
 // Fetched here, not in the content script, to avoid the page's CORS rules.
 // Resolves to the rating ('' if clist has none), or null if it can't be asked.
-const getClistRating = async (name) => {
+const getClistRating = async (slug) => {
   const {clistUser, clistKey, clistEnabled} = await chrome.storage.local.get([
     'clistUser',
     'clistKey',
     'clistEnabled',
   ]);
+  const allowed = await chrome.permissions.contains({
+    origins: ['https://clist.by/*'],
+  });
   // on by default, the popup switch only turns it off
-  if (clistEnabled === false || !clistUser || !clistKey) return null;
+  if (clistEnabled === false || !clistUser || !clistKey || !allowed) return null;
 
-  // clist allows 10 requests per minute, space requests 6s apart
-  await new Promise((resolve) =>
-    setTimeout(resolve, lastFetch + 6000 - Date.now())
-  );
-  lastFetch = Date.now();
+  // clist allows 10 requests per minute, space them 6s apart
+  const slot = Math.max(nextFetch, Date.now());
+  nextFetch = slot + 6000;
+  await new Promise((resolve) => setTimeout(resolve, slot - Date.now()));
 
   try {
+    // keep the key out of the URL
     const res = await fetch(
       'https://clist.by/api/v4/problem/?' +
-        new URLSearchParams({
-          username: clistUser,
-          api_key: clistKey,
-          resource: 'leetcode.com',
-          name,
-        })
+        new URLSearchParams({resource: 'leetcode.com', slug}),
+      {headers: {Authorization: `ApiKey ${clistUser}:${clistKey}`}}
     );
     if (!res.ok) return null;
-    const problem = (await res.json()).objects.find((p) => p.name === name);
+    const problem = (await res.json()).objects.find((p) => p.slug === slug);
     return problem?.rating ? String(problem.rating) : '';
   } catch (e) {
     return null;
   }
 };
 
-// one lookup at a time
-let queue = Promise.resolve();
-chrome.runtime.onMessage.addListener((name, sender, sendResponse) => {
-  queue = queue.then(() => getClistRating(name)).then(sendResponse);
+chrome.runtime.onMessage.addListener((slug, sender, sendResponse) => {
+  getClistRating(slug).then(sendResponse);
   return true; // respond asynchronously
 });

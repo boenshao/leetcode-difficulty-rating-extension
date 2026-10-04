@@ -12,16 +12,14 @@ let nextFetch = 0; // earliest time clist.by may be asked again
 // Fetched here, not in the content script, to avoid the page's CORS rules.
 // Resolves to the rating ('' if clist has none), or null if it can't be asked.
 const getClistRating = async (slug) => {
-  const {clistUser, clistKey, clistEnabled} = await chrome.storage.local.get([
-    'clistUser',
+  const {clistKey, clistEnabled} = await chrome.storage.local.get([
     'clistKey',
     'clistEnabled',
   ]);
   const allowed = await chrome.permissions.contains({
     origins: ['https://clist.by/*'],
   });
-  // on by default, the popup switch only turns it off
-  if (clistEnabled === false || !clistUser || !clistKey || !allowed) return null;
+  if (!clistEnabled || !clistKey || !allowed) return null;
 
   // clist allows 10 requests per minute, space them 6s apart
   const slot = Math.max(nextFetch, Date.now());
@@ -33,7 +31,7 @@ const getClistRating = async (slug) => {
     const res = await fetch(
       'https://clist.by/api/v4/problem/?' +
         new URLSearchParams({resource: 'leetcode.com', slug}),
-      {headers: {Authorization: `ApiKey ${clistUser}:${clistKey}`}}
+      {headers: {Authorization: `ApiKey ${clistKey}`}}
     );
     if (!res.ok) return null;
     const problem = (await res.json()).objects.find((p) => p.slug === slug);

@@ -57,30 +57,25 @@ const lookupClist = async (id, slug) => {
   update();
 };
 
-// the popup switch, off hides clist.by ratings and stops looking them up
-let clistOn = true;
-
 // useClist: ask clist.by if zerotrac lacks the problem, only for the main
 // problem of a problem page, so lists never cost a request per row
 const replace = (ratings, title, difficulty, showNA, useClist = false) => {
   if (!title || !difficulty) return;
 
   let id = title.textContent.split('.')[0];
-  let entry = ratings[id];
-  if (entry?.Source === 'clist.by' && !clistOn) entry = undefined;
 
-  if (!entry) {
+  if (!ratings[id]) {
     // the slug is the same on leetcode.com and leetcode.cn, the title is not
     let slug = location.pathname.match(/^\/problems\/([^/]+)/)?.[1];
-    if (clistOn && useClist && !lookingUpClist.has(id)) lookupClist(id, slug);
+    if (useClist && !lookingUpClist.has(id)) lookupClist(id, slug);
     if (lookingUpClist.get(id)) return; // keep the original text while waiting
   }
 
-  let rating = entry?.Rating;
+  let rating = ratings[id]?.Rating;
   if (!rating && !showNA) return;
 
   // ratings from clist.by get a "c" suffix and a tooltip naming the source
-  let source = entry?.Source ?? 'zerotrac';
+  let source = ratings[id]?.Source ?? 'zerotrac';
   difficulty.textContent = difficulty.textContent.replace(
     /([Hh]ard|[Mm]ed\.|[Mm]edium|[Ee]asy|简单|中等|困难|\d{3,4}c?|N\/A)/,
     rating
@@ -94,9 +89,14 @@ const update = async () => {
   observer.disconnect();
 
   let ratings = await getRatings();
-  let options = await chrome.storage.local.get(['showNA', 'clistEnabled']);
-  let showNA = options.showNA;
-  clistOn = options.clistEnabled !== false;
+  let {showNA, clistEnabled} = await chrome.storage.local.get([
+    'showNA',
+    'clistEnabled',
+  ]);
+  // the switch is off: clist.by ratings stay cached but are not shown
+  if (!clistEnabled) {
+    for (let id in ratings) if (ratings[id].Source === 'clist.by') delete ratings[id];
+  }
 
   let title;
   let difficulty;
@@ -113,19 +113,19 @@ const update = async () => {
   difficulty = document.querySelector(
     'div > div.text-sm.font-medium.capitalize'
   );
-  replace(ratings, title, difficulty, showNA, true);
+  replace(ratings, title, difficulty, showNA, clistEnabled);
 
   // old leetcode.com/problems/*/
   title = document.querySelector('div[data-cy="question-title"]');
   difficulty = document.querySelector(
     'div[diff="easy"],div[diff="medium"],div[diff="hard"]'
   );
-  replace(ratings, title, difficulty, showNA, true);
+  replace(ratings, title, difficulty, showNA, clistEnabled);
 
   // leetcode.cn/problems/*/
   title = document.querySelector('div[class^="text-title-"]');
   difficulty = document.querySelector('div[class*="text-difficulty-"]');
-  replace(ratings, title, difficulty, showNA, true);
+  replace(ratings, title, difficulty, showNA, clistEnabled);
 
   // leetcode.com/problem-list/*/
   document

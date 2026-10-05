@@ -43,19 +43,23 @@
     <details>
       <summary>How are ratings calculated?</summary>
       <p>
-        Both sources use Elo: a problem's rating is the contestant rating that
+        Ratings come from two sources:
+        <a href="https://github.com/zerotrac/leetcode_problem_rating" target="_blank">zerotrac</a>
+        and <a href="https://clist.by" target="_blank">clist.by</a>.
+        Both use Elo: a problem's rating is the rating of a person who
         solves it half the time.
       </p>
       <p>
-        Plain ratings come from
-        <a href="https://github.com/zerotrac/leetcode_problem_rating" target="_blank">zerotrac</a>,
-        Elo with maximum likelihood estimation over contest results. Weekly
-        contests 1-62 are not covered.
+        zerotrac ratings are shown as plain numbers. Weekly contests 1-62 are
+        not covered.
       </p>
       <p>
-        Ratings marked with <code>c</code>, like <code>1275c</code>, come from
-        clist.by, which weights each contestant by their rating. The two
-        formulas differ, so compare them with care.
+        clist.by ratings are marked with <code>c</code>, like
+        <code>1275c</code>, and fill in problems zerotrac does not cover.
+        It counts people with more past contests more heavily. It also
+        looks at how well each person did in that contest, not only at
+        their rating before it. So a <code>c</code> rating and a plain rating
+        can differ for problems of the same difficulty.
       </p>
     </details>
     <script src="./popup.js" type="module"></script>
